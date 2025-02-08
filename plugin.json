@@ -1,0 +1,12 @@
+{
+    "ID": "e4b82cb4-a09a-418a-bb8c-75153379a54c",
+    "ActionKeyword": "uvx",
+    "Name": "UvxPy",
+    "Description": "a thin wrapper over uv's tooling management",
+    "Author": "cibere",
+    "Version": "0.0.1",
+    "Language": "python_v2",
+    "Website": "https://github.com/author/Flow.Launcher.Plugin.uvx-py",
+    "IcoPath": "assets/app.png",
+    "ExecuteFileName": "main.py"
+}
