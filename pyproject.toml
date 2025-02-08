@@ -4,12 +4,6 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-    "flogin",
-]
-
-[tool.uv.sources]
-flogin = { git = "https://github.com/cibere/flogin", rev = "bda3a995ab00d113692f0583106849b314fd76cc" }
 
 [tool.ruff]
 exclude = [
