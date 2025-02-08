@@ -1,1 +1,1 @@
-flogin @ https://github.com/cibere/flogin@bda3a995ab00d113692f0583106849b314fd76cc
+flogin @ git+https://github.com/cibere/flogin@bda3a995ab00d113692f0583106849b314fd76cc
