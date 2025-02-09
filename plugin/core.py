@@ -23,6 +23,29 @@ async def _uvx_not_installed_callback(query: Query):
     )
 
 
+async def _uvx_list() -> dict[str, list[str]]:
+    response, _ = await plugin.uvx("list")
+
+    data: dict[str, list[str]] = {}
+    temp: list[str] = []
+    current = ""
+
+    for line in response.splitlines():
+        line = line.strip()
+
+        if line.startswith("-"):
+            temp.append(line.strip("- "))
+        else:
+            if temp:
+                data[current] = temp
+                temp = []
+            current = line
+    data[current] = temp
+
+    print(f"{data=}")
+    return data
+
+
 @plugin.event
 async def on_initialization():
     try:
@@ -55,13 +78,15 @@ async def install_cmd(query: Query[re.Match[str]]):
 
 @plugin.search(pattern=r"uninstall$")
 async def uninstall_cmd_base(query: Query):
-    await plugin.api.change_query(query.raw_text + " ")
-    return UrlResult(
-        "https://docs.astral.sh/uv/reference/cli/#uv-tool-uninstall",
-        title="Type the name of the package you want to uninstall",
-        icon="assets/app.png",
-        sub="Click to open up the docs on the uninstall command",
-    )
+    data = await _uvx_list()
+    for idx, (name, scripts) in enumerate(data.items()):
+        yield UninstallResult(
+            name.split(" ")[0],
+            title=f"Uninstall {name!r}?",
+            sub=f"This would remove the following scripts: {', '.join(scripts)}",
+            glyph=Glyph(str(idx + 1), "Calibri"),
+            auto_complete_text=name,
+        )
 
 
 @plugin.search(pattern=r"uninstall\s(?P<args>.*)")
@@ -78,13 +103,15 @@ async def uninstall_cmd(query: Query[re.Match[str]]):
 
 @plugin.search(pattern=r"upgrade$")
 async def upgrade_cmd_base(query: Query):
-    await plugin.api.change_query(query.raw_text + " ")
-    return UrlResult(
-        "https://docs.astral.sh/uv/reference/cli/#uv-tool-upgrade",
-        title="Type the name of the package you want to upgrade",
-        icon="assets/app.png",
-        sub="Click to open up the docs on the upgrade command",
-    )
+    data = await _uvx_list()
+    for idx, (name, scripts) in enumerate(data.items()):
+        yield UpgradeResult(
+            name.split(" ")[0],
+            title=f"Upgrade {name!r}?",
+            sub=f"This would upgrade the following scripts: {', '.join(scripts)}",
+            glyph=Glyph(str(idx + 1), "Calibri"),
+            auto_complete_text=name,
+        )
 
 
 @plugin.search(pattern=r"upgrade(?P<args>\s.*)")
@@ -98,7 +125,7 @@ async def upgrade_cmd(query: Query[re.Match[str]]):
 
 
 @plugin.search(pattern=r"up-all$")
-async def upgrade_all_cmd(query: Query[re.Match[str]]):
+async def upgrade_all_cmd(query: Query):
     return UpgradeResult(
         "--all", title="Upgrade all tools?", glyph=Glyph("?", "Calibri")
     )
@@ -106,26 +133,7 @@ async def upgrade_all_cmd(query: Query[re.Match[str]]):
 
 @plugin.search(pattern=r"list")
 async def list_cmd(query: Query):
-    response, _ = await plugin.uvx("list")
-
-    data: dict[str, list[str]] = {}
-    temp: list[str] = []
-    current = ""
-
-    for line in response.splitlines():
-        line = line.strip()
-
-        if line.startswith("-"):
-            temp.append(line.strip("- "))
-        else:
-            if temp:
-                data[current] = temp
-                temp = []
-            current = line
-    data[current] = temp
-
-    print(f"{data=}")
-
+    data = await _uvx_list()
     for idx, (name, scripts) in enumerate(data.items()):
         yield ListEntryResult(
             name.split(" ")[0],
@@ -137,18 +145,29 @@ async def list_cmd(query: Query):
 
 @plugin.search()
 async def index_cmd(query: Query):
-    yield RedirectResult(
-        f"{query.keyword} install ", title="install package", icon="assets/app.png"
-    )
-    yield RedirectResult(
-        f"{query.keyword} uninstall ", title="uninstall package", icon="assets/app.png"
-    )
-    yield RedirectResult(
-        f"{query.keyword} upgrade ", title="upgrade package", icon="assets/app.png"
-    )
-    yield RedirectResult(
-        f"{query.keyword} up-all", title="upgrade all packages", icon="assets/app.png"
-    )
-    yield RedirectResult(
-        f"{query.keyword} list", title="list installed packages", icon="assets/app.png"
-    )
+    for result in [
+        RedirectResult(
+            f"{query.keyword} install ", title="install package", icon="assets/app.png"
+        ),
+        RedirectResult(
+            f"{query.keyword} uninstall ",
+            title="uninstall package",
+            icon="assets/app.png",
+        ),
+        RedirectResult(
+            f"{query.keyword} upgrade ", title="upgrade package", icon="assets/app.png"
+        ),
+        RedirectResult(
+            f"{query.keyword} up-all",
+            title="upgrade all packages",
+            icon="assets/app.png",
+        ),
+        RedirectResult(
+            f"{query.keyword} list",
+            title="list installed packages",
+            icon="assets/app.png",
+        ),
+    ]:
+        data = await plugin.api.fuzzy_search(query.text, str(result.title))
+        result.score = data.score
+        yield result
