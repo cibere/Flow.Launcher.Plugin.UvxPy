@@ -6,7 +6,7 @@
     "Author": "cibere",
     "Version": "0.0.1",
     "Language": "python_v2",
-    "Website": "https://github.com/author/Flow.Launcher.Plugin.uvx-py",
+    "Website": "https://github.com/author/Flow.Launcher.Plugin.uvxpy",
     "IcoPath": "assets/app.png",
     "ExecuteFileName": "main.py"
 }
