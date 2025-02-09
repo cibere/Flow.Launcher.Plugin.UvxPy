@@ -5,6 +5,9 @@ from pathlib import Path
 
 
 def main(archive_name: str):
+    prod_file = Path("DELETE-ME-FOR-LOGS.flogin.prod")
+    prod_file.write_text("")
+
     files = [
         Path(fp)
         for fp in (
@@ -12,6 +15,7 @@ def main(archive_name: str):
             "main.py",
         )
     ]
+    files.append(prod_file)
     ignore_exts = (".dist-info", ".pyc", "__pycache__")
     plugin_include_exts = ("py",)
 
