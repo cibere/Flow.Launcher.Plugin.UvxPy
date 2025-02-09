@@ -14,6 +14,24 @@ from .results.url_result import UrlResult
 plugin = UvxPyPlugin()
 
 
+async def _uvx_not_installed_callback(query: Query):
+    return UrlResult(
+        "https://docs.astral.sh/uv/getting-started/installation/",
+        title="uv is either not installed or not added to path",
+        icon="assets/error.png",
+        sub="click to open installation instructions",
+    )
+
+
+@plugin.event
+async def on_initialization():
+    try:
+        await plugin.uvx()
+    except FileNotFoundError:
+        plugin._search_handlers.clear()
+        plugin.search()(_uvx_not_installed_callback)
+
+
 @plugin.search(pattern=r"install$")
 async def install_cmd_base(query: Query):
     await plugin.api.change_query(query.raw_text + " ")
