@@ -4,9 +4,9 @@
     "Name": "UvxPy",
     "Description": "a thin wrapper over uv's tooling management",
     "Author": "cibere",
-    "Version": "0.0.2",
+    "Version": "0.0.3",
     "Language": "python_v2",
-    "Website": "https://github.com/author/Flow.Launcher.Plugin.uvxpy",
+    "Website": "https://github.com/cibere/Flow.Launcher.Plugin.uvxpy",
     "IcoPath": "assets/app.png",
     "ExecuteFileName": "main.py"
 }
